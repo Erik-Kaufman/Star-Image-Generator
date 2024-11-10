@@ -63,11 +63,23 @@ def convert_RA_to_radians(angle):
     # multiply by two pi to get to radians
     return circle * 2 * math.pi
 
+# these are from https://en.wikipedia.org/wiki/Hammer_projection
+def laeax(ra, dec):
+    top = 2 * math.sqrt(2) * math.cos(dec) * math.sin(ra/2)
+    bottom = math.sqrt(1 + (math.cos(dec) * math.cos(ra/2)))
+
+    return top / bottom
+
+def laeay(ra, dec):
+    top = math.sqrt(2) * math.sin(dec)
+    bottom = math.sqrt(1 + (math.cos(dec) * math.cos(ra/2)))
+
+    return top / bottom
 
 def main():
     margin = 20  # this is to help with drawing the stars on the edge
     x_size = 10000
-    y_size = 7000
+    y_size = 5000
 
     with open("BSC.json") as file:
         # create the image
@@ -88,14 +100,14 @@ def main():
             ra_rad = convert_RA_to_radians(item["RA"])
 
             # remap the pizles by dividing by the range of the pizles, then by multiplying by the screen size
-            #x = math.cos(dec_rad) * math.cos(ra_rad) * x_size / 2.0
-            #y = math.cos(dec_rad) * math.sin(ra_rad) * y_size / 2.0
 
-            x = (ra_rad / (math.pi * 2)) * x_size
-            y = math.cos(dec_rad) * y_size / 2.0
+            #x = (ra_rad / (math.pi * 2)) * x_size
+            #y = math.cos(dec_rad) * y_size / 2.0
+            x = laeax(ra_rad, dec_rad) * x_size / 4.0
+            y = laeay(ra_rad, dec_rad) * y_size / 8.0
 
             # scale it back to positive numbers
-            #x += (x_size / 2) + margin / 2
+            x += (x_size / 8) + margin / 2
             y += (y_size / 2) + margin / 2
             
             print(f"{i} x: {math.floor(x)}")
@@ -109,7 +121,7 @@ def main():
                 star_size = 1
                 #runing_tally += 1
             else:
-                star_size = math.ceil(float(item["MAG"])) * 2
+                star_size = math.ceil(float(item["MAG"]))
             draw.circle((math.floor(x), math.floor(y)), star_size / 2, fill_color)
             pixles[x, y] = (255, 0, 0)
 
