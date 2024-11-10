@@ -7,7 +7,7 @@ It uses data in the BSC.json file that can be found here https://github.com/adub
 This was created during the 2024 Hack K-State hackathon put on my MLH
 """
 import json
-import PIL.Image
+import PIL.Image, PIL.ImageDraw
 import math
 
 # try converting to spherical cordinates to see it it is what I want
@@ -23,8 +23,7 @@ import math
 # Declaenation is the x, (DEC)
 # Right Ascension is the y (RA)
 #
-x_size = 2000
-y_size = 2000
+
 
 def convert_DEC_to_radians(angle):
     # degrees minuets seconds
@@ -63,38 +62,53 @@ def convert_RA_to_radians(angle):
     # multiply by two pi to get to radians
     return circle * 2 * math.pi
 
-with open("BSC.json") as file:
-    # create the image
-    im = PIL.Image.new(mode="RGB", size=(x_size, y_size))
-    
-    pixles = im.load()
 
-    #for x in range(im.size[0]):
-    #    pixles[x, y_size/2] = (255, 255, 255)
-    #for y in range(im.size[1]):
-    #    pixles[x_size/2, y] = (255, 255, 255)
+def main():
+    margin = 20  # this is to help with drawing the stars on the edge
+    x_size = 16000
+    y_size = 16000
 
-    # loop through the data and update a pixle for each star
-    for i, item in enumerate(json.load(file)):
-        # convert the hours, degrees, minuts, seconds into a float, then scale it to the image and plot it
-        dec_rad = convert_DEC_to_radians(item["DEC"])
-        ra_rad = convert_RA_to_radians(item["RA"])
+    with open("BSC.json") as file:
+        # create the image
+        im = PIL.Image.new(mode="RGB", size=(x_size + margin, y_size + margin))
+        
+        pixles = im.load()
+        draw = PIL.ImageDraw.Draw(im)
+        #for x in range(im.size[0]):
+        #    pixles[x, y_size/2] = (255, 255, 255)
+        #for y in range(im.size[1]):
+        #    pixles[x_size/2, y] = (255, 255, 255)
+        runing_tally = 0
+        num = 0
+        # loop through the data and update a pixle for each star
+        for i, item in enumerate(json.load(file)):
+            # convert the hours, degrees, minuts, seconds into a float, then scale it to the image and plot it
+            dec_rad = convert_DEC_to_radians(item["DEC"])
+            ra_rad = convert_RA_to_radians(item["RA"])
 
-        # remap the pizles by dividing by the range of the pizles, then by multiplying by the screen size
-        x = math.cos(dec_rad) * math.cos(ra_rad) * x_size / 2.0
-        y = math.cos(dec_rad) * math.sin(ra_rad) * y_size / 2.0
+            # remap the pizles by dividing by the range of the pizles, then by multiplying by the screen size
+            x = math.cos(dec_rad) * math.cos(ra_rad) * x_size / 2.0
+            y = math.cos(dec_rad) * math.sin(ra_rad) * y_size / 2.0
 
-        # scale it back to positive numbers
-        x += x_size / 2
-        y += y_size / 2
+            # scale it back to positive numbers
+            x += (x_size / 2) + margin / 2
+            y += (y_size / 2) + margin / 2
 
-        print(f"{i} x: {math.floor(x)}")
-        print(f"{i} y: {math.floor(y)}")
-        print(item)
+            print(f"{i} x: {math.floor(x)}")
+            print(f"{i} y: {math.floor(y)}")
+            print(item)
 
-        # set the pixles
-        pixles[math.floor(x), math.floor(y)] = (255, 255, 255)
+            
+            # set the pixles
+            fill_color = (255, 255, 255)
+            if float(item["MAG"]) < 0:
+                star_size = 1
+                runing_tally += 1
+            else:
+                star_size = math.ceil(float(item["MAG"]))
+            draw.circle((math.floor(x), math.floor(y)), star_size / 2, fill_color)
 
+    print(f"Avergage star size is {runing_tally}")
+    im.show()
 
-im.show()
-
+main()
