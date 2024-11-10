@@ -110,6 +110,6 @@ def main():
 
     #print(f"Avergage star size is {runing_tally}")
     im.show()
-    im.save("stars.png")
+    #im.save("stars.png")
 
 main()
