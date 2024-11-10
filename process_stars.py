@@ -20,8 +20,8 @@ import math
 
 # get data from the json file
 #
-# Declaenation is the x, (DEC)
-# Right Ascension is the y (RA)
+# Right Ascension is the x (RA)
+# Declaenation is the y, (DEC)
 #
 
 
@@ -43,6 +43,7 @@ def convert_DEC_to_radians(angle):
         deg = 90.0 + deg
 
     radians = (deg / 360.0) * (math.pi * 2)
+    print(radians)
     return radians
 
 # will return an intiger that will hold the position of the star as an int
@@ -65,7 +66,7 @@ def convert_RA_to_radians(angle):
 
 def main():
     margin = 20  # this is to help with drawing the stars on the edge
-    x_size = 7000
+    x_size = 10000
     y_size = 7000
 
     with open("BSC.json") as file:
@@ -87,13 +88,16 @@ def main():
             ra_rad = convert_RA_to_radians(item["RA"])
 
             # remap the pizles by dividing by the range of the pizles, then by multiplying by the screen size
-            x = math.cos(dec_rad) * math.cos(ra_rad) * x_size / 2.0
-            y = math.cos(dec_rad) * math.sin(ra_rad) * y_size / 2.0
+            #x = math.cos(dec_rad) * math.cos(ra_rad) * x_size / 2.0
+            #y = math.cos(dec_rad) * math.sin(ra_rad) * y_size / 2.0
+
+            x = (ra_rad / (math.pi * 2)) * x_size
+            y = math.cos(dec_rad) * y_size / 2.0
 
             # scale it back to positive numbers
-            x += (x_size / 2) + margin / 2
+            #x += (x_size / 2) + margin / 2
             y += (y_size / 2) + margin / 2
-
+            
             print(f"{i} x: {math.floor(x)}")
             print(f"{i} y: {math.floor(y)}")
             print(item)
@@ -105,8 +109,10 @@ def main():
                 star_size = 1
                 #runing_tally += 1
             else:
-                star_size = math.ceil(float(item["MAG"]))
+                star_size = math.ceil(float(item["MAG"])) * 2
             draw.circle((math.floor(x), math.floor(y)), star_size / 2, fill_color)
+            pixles[x, y] = (255, 0, 0)
+
 
     #print(f"Avergage star size is {runing_tally}")
     im.show()
