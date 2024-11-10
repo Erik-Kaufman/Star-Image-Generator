@@ -65,8 +65,8 @@ def convert_RA_to_radians(angle):
 
 def main():
     margin = 20  # this is to help with drawing the stars on the edge
-    x_size = 16000
-    y_size = 16000
+    x_size = 7000
+    y_size = 7000
 
     with open("BSC.json") as file:
         # create the image
@@ -78,8 +78,8 @@ def main():
         #    pixles[x, y_size/2] = (255, 255, 255)
         #for y in range(im.size[1]):
         #    pixles[x_size/2, y] = (255, 255, 255)
-        runing_tally = 0
-        num = 0
+        #runing_tally = 0
+        #num = 0
         # loop through the data and update a pixle for each star
         for i, item in enumerate(json.load(file)):
             # convert the hours, degrees, minuts, seconds into a float, then scale it to the image and plot it
@@ -103,12 +103,13 @@ def main():
             fill_color = (255, 255, 255)
             if float(item["MAG"]) < 0:
                 star_size = 1
-                runing_tally += 1
+                #runing_tally += 1
             else:
                 star_size = math.ceil(float(item["MAG"]))
             draw.circle((math.floor(x), math.floor(y)), star_size / 2, fill_color)
 
-    print(f"Avergage star size is {runing_tally}")
+    #print(f"Avergage star size is {runing_tally}")
     im.show()
+    im.save("stars.png")
 
 main()

@@ -96,8 +96,7 @@ def main():
             draw.circle((x, y), 2, fill_color)
             pixles[x, y] = (255, 0, 0)
 
-
-
     im.show()
+    
 
 main()
