@@ -80,6 +80,7 @@ def main():
     margin = 20  # this is to help with drawing the stars on the edge
     x_size = 10000
     y_size = 5000
+    star_threashold = 0 # Threashold to try and help sparate brighter stars from dimer stars more visualy
 
     with open("BSC.json") as file:
         # create the image
@@ -101,13 +102,13 @@ def main():
 
             # remap the pizles by dividing by the range of the pizles, then by multiplying by the screen size
 
-            #x = (ra_rad / (math.pi * 2)) * x_size
-            #y = math.cos(dec_rad) * y_size / 2.0
-            x = laeax(ra_rad, dec_rad) * x_size / 4.0
-            y = laeay(ra_rad, dec_rad) * y_size / 8.0
+            x = (ra_rad / (math.pi * 2)) * x_size
+            y = math.cos(dec_rad) * y_size / 2.0
+            #x = laeax(ra_rad, dec_rad) * x_size / 4.0
+            #y = laeay(ra_rad, dec_rad) * y_size / 8.0
 
             # scale it back to positive numbers
-            x += (x_size / 8) + margin / 2
+            #x += (x_size / 2) + margin / 2
             y += (y_size / 2) + margin / 2
             
             print(f"{i} x: {math.floor(x)}")
@@ -120,6 +121,8 @@ def main():
             if float(item["MAG"]) < 0:
                 star_size = 1
                 #runing_tally += 1
+            elif float(item["MAG"]) < star_threashold:
+                star_size = math.ceil(float(item["MAG"]) / 8) 
             else:
                 star_size = math.ceil(float(item["MAG"]))
             draw.circle((math.floor(x), math.floor(y)), star_size / 2, fill_color)
